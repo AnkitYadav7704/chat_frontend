@@ -43,8 +43,12 @@ function App() {
   }, []);
 
   if (!user) {
+ {
   return showSignup ? (
-    <Signup onSignup={() => setShowSignup(false)} />
+    <Signup 
+      onSignup={() => setShowSignup(false)} 
+      onBackToLogin={() => setShowSignup(false)} 
+    />
   ) : (
     <Login onLogin={() => {}} onSwitchToSignup={() => setShowSignup(true)} />
   );
