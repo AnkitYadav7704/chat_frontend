@@ -21,7 +21,9 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
 
   // 👇 Back Button Function
-  
+  const goBack = () => {
+    window.history.back();
+  };
 
   useEffect(() => {
     const handleMessage = (data) => {
