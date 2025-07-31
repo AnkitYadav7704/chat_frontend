@@ -43,7 +43,6 @@ function App() {
   }, []);
 
   if (!user) {
- {
   return showSignup ? (
     <Signup 
       onSignup={() => setShowSignup(false)} 
