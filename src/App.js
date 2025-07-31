@@ -21,9 +21,7 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
 
   // 👇 Back Button Function
-  const goBack = () => {
-    window.history.back();
-  };
+  
 
   useEffect(() => {
     const handleMessage = (data) => {
@@ -76,13 +74,6 @@ function App() {
     
     <div className="container mt-5">
       {/* Top Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3>Welcome, <span className="text-primary">{user.email}</span></h3>
-        <div>
-          <button className="btn btn-outline-secondary me-2" onClick={goBack}>⬅ Back</button>
-          <button className="btn btn-danger" onClick={() => signOut(auth)}>Logout</button>
-        </div>
-      </div>
 
       {/* Message Input */}
       <div className="input-group mb-3">
