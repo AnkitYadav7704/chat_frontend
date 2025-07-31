@@ -7,7 +7,7 @@ import './App.css';
 
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 
-const socket = io("http://localhost:5000"); // 🔁 Change if deploying
+const socket = io(process.env.SERVER_URL); // 🔁 Change if deploying
 
 function App() {
   const [msg, setMsg] = useState("");
