@@ -4,45 +4,52 @@ import { io } from "socket.io-client";
 import { auth } from './firebase';
 import Signup from './Signup';
 import './App.css';
-
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import Login from './Login';
 
-const socket = io(process.env.REACT_APP_SERVER_URL);
- // 🔁 Change if deploying
+
+
+
+// 👇 Initialize Socket connection
+const socket = io(process.env.REACT_APP_SERVER_URL); // ⚠️ Change URL when deploying
 
 function App() {
+
   const [msg, setMsg] = useState("");
   const [allMsg, setAllMsg] = useState([]);
   const [user, setUser] = useState(null);
   const [showSignup, setShowSignup] = useState(false);
 
+  // 👇 Back Button Function
+  const goBack = () => {
+    window.history.back();
+  };
 
   useEffect(() => {
-  const handleMessage = (data) => {
-    setAllMsg(prev => [...prev, data]);
-  };
+    const handleMessage = (data) => {
+      setAllMsg(prev => [...prev, data]);
+    };
 
-  socket.on("receive-message", handleMessage);
+    socket.on("receive-message", handleMessage);
 
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    setUser(user);
-  });
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
 
-  // 🔥 Clean up the event listener when component unmounts
-  return () => {
-    socket.off("receive-message", handleMessage);
-    unsubscribe(); // for auth listener cleanup
-  };
-}, []);
+    return () => {
+      socket.off("receive-message", handleMessage);
+      unsubscribe();
+    };
+  }, []);
 
+  if (!user) {
+  return showSignup ? (
+    <Signup onSignup={() => setShowSignup(false)} />
+  ) : (
+    <Login onLogin={() => {}} onSwitchToSignup={() => setShowSignup(true)} />
+  );
+}
 
-  const login = () => {
-    const email = prompt("Enter Email:");
-    const password = prompt("Enter Password:");
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => alert("Logged in successfully"))
-      .catch(e => alert("Login failed: " + e.message));
-  };
 
   const sendMsg = () => {
     if (msg.trim() === "") return;
@@ -50,38 +57,60 @@ function App() {
     setMsg("");
   };
 
-if (!user) {
-  return showSignup ? (
-    <Signup onSignup={() => setShowSignup(false)} />
-  ) : (
-    <div style={{ padding: "20px" }}>
-      <button onClick={login}>Login with Email</button>
-      <p>or</p>
-      <button onClick={() => setShowSignup(true)}>Create New Account</button>
-    </div>
-  );
-}
+  // 👇 If not logged in
+  if (!user) {
+    return showSignup ? (
+      <Signup onSignup={() => setShowSignup(false)} />
+    ) : (
+      <div className="container text-center mt-5">
+        <h2 className="mb-4">Welcome to ChatApp 🚀</h2>
+        <button className="btn btn-primary me-2" onClick={Login}>Login with Email</button>
+        <p className="my-2">or</p>
+        <button className="btn btn-success" onClick={() => setShowSignup(true)}>Create New Account</button>
+      </div>
+    );
+  }
 
-
+  // 👇 Logged-in UI
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Welcome, {user.email}</h2>
-      <button onClick={() => signOut(auth)}>Logout</button>
-      <br /><br />
-      <input
-        value={msg}
-        onChange={(e) => setMsg(e.target.value)}
-        placeholder="Type your message"
-        style={{ padding: "5px", width: "300px" }}
-      />
-      <button onClick={sendMsg}>Send</button>
-      <ul>
-        {allMsg.map((m, i) => (
-          <li key={i}><b>{m.sender}:</b> {m.text}</li>
-        ))}
-      </ul>
+    
+    <div className="container mt-5">
+      {/* Top Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3>Welcome, <span className="text-primary">{user.email}</span></h3>
+        <div>
+          <button className="btn btn-outline-secondary me-2" onClick={goBack}>⬅ Back</button>
+          <button className="btn btn-danger" onClick={() => signOut(auth)}>Logout</button>
+        </div>
+      </div>
+
+      {/* Message Input */}
+      <div className="input-group mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Type your message"
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+        />
+        <button className="btn btn-primary" onClick={sendMsg}>Send</button>
+      </div>
+
+      {/* Message List */}
+      <div className="card shadow">
+        <div className="card-header bg-primary text-white">💬 Chat Messages</div>
+        <ul className="list-group list-group-flush">
+          {allMsg.map((m, i) => (
+            <li key={i} className="list-group-item">
+              <strong>{m.sender}</strong>: {m.text}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
+    
   );
+  
 }
 
 export default App;
