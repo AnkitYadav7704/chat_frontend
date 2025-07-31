@@ -1,68 +1,50 @@
-import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
-import { useNavigate } from "react-router-dom";
-import "./Signup.css";
+import React, { useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase';
 
-function Signup() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+function Signup({ onSignup, onBackToLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
+  const handleSignup = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Signup successful! You can now log in.");
-      navigate("/login"); // Redirect to login
-    } catch (error) {
-      alert(error.message);
+      onSignup(); // move to login after successful signup
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const goBack = () => {
-    navigate(-1); // Go to previous page
-  };
-
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <div className="card shadow">
-        <div className="card-body">
-          <h2 className="text-center mb-4">Create Account</h2>
-
-          <form onSubmit={handleSignup}>
-            <div className="mb-3">
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Enter email"
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Enter password"
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                required
-              />
-            </div>
-
-            <div className="d-grid gap-2">
-              <button type="submit" className="btn btn-success">
-                Sign Up
-              </button>
-              <button type="button" className="btn btn-outline-secondary" onClick={goBack}>
-                ⬅ Back
-              </button>
-            </div>
-          </form>
-        </div>
+    <div className="container mt-5">
+      <h2>Create Account</h2>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="mb-3">
+        <label>Email</label>
+        <input 
+          type="email" 
+          className="form-control"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+      </div>
+      <div className="mb-3">
+        <label>Password</label>
+        <input 
+          type="password" 
+          className="form-control"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)} 
+        />
+      </div>
+      <div className="d-flex justify-content-between">
+        <button className="btn btn-secondary" onClick={onBackToLogin}>
+          ← Back to Login
+        </button>
+        <button className="btn btn-success" onClick={handleSignup}>
+          Sign Up
+        </button>
       </div>
     </div>
   );
